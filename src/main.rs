@@ -1,8 +1,11 @@
 use std::error::Error;
 use std::fs;
+use std::time;
 
 mod birthplaces;
+mod format;
 mod games;
+mod generators;
 mod goalie_stats;
 mod goalies;
 mod league;
@@ -16,46 +19,67 @@ mod team_stats;
 mod teams;
 mod utils;
 
+use format::{goalies_to_csv, seasons_to_csv, skaters_to_csv, team_season_to_csv, teams_to_csv};
+use generators::{get_entry_draft_data, retire_and_draft_players};
+use goalies::Goalie;
 use season_names::SEASON_NAMES;
+use seasons::Season;
+use skaters::Skater;
 
 fn main() {
+    let timer = time::Instant::now();
     let mut league = league::League::new();
 
-    for (i, season) in SEASON_NAMES.iter().enumerate() {
-        // if i != 0 {
-        //     break;
-        // }
+    for (season_index, season) in SEASON_NAMES.iter().enumerate() {
+        let mut season = Season::new(season.to_string(), season_index);
 
-        let mut season = seasons::Season::new(season.to_string(), i);
-
-        for (team_index, team) in team_names::TEAM_NAMES.iter().enumerate() {
-            let mut team = teams::Team::new(team.to_string(), team_index);
-
-            for (line_index, line) in (1..=4).into_iter().enumerate() {
-                for (pos_index, _) in (1..=5).into_iter().enumerate() {
-                    let skater = skaters::Skater::new(&season.season_num, line, pos_index);
-                    team.lines[line_index].push(skater);
-                }
-            }
-
-            for _ in 1..=2 {
-                let goalie = goalies::Goalie::new(&season.season_num);
-                team.goalies.push(goalie);
-            }
-
-            season.teams.push(team);
+        if season_index == 0 {
+            season = get_entry_draft_data(season);
+        } else {
+            season = retire_and_draft_players(&league, season_index, season);
         }
 
         league.seasons.push(season);
     }
 
-    // println!("{}", league.seasons.len());
-    // println!("{:?}", league);
+    let seasons_formatted = seasons_to_csv(&league.seasons);
+    let teams_formatted = teams_to_csv(&league.seasons[0].teams);
+    let team_seasons_formatted = team_season_to_csv(&league.seasons, &league.seasons[0].teams);
 
-    // let _ = write_string_to_file("results.txt", "hello");
+    let mut all_skaters: Vec<Skater> = vec![];
+    let mut all_goalies: Vec<Goalie> = vec![];
+
+    for season in league.seasons {
+        for team in season.teams {
+            for line in team.lines {
+                for skater in line {
+                    if !all_skaters.iter().any(|s| s.skater_id == skater.skater_id) {
+                        all_skaters.push(skater);
+                    }
+                }
+            }
+
+            for goalie in team.goalies {
+                if !all_goalies.iter().any(|g| g.goalie_id == goalie.goalie_id) {
+                    all_goalies.push(goalie);
+                }
+            }
+        }
+    }
+
+    let skaters_formatted = skaters_to_csv(&all_skaters);
+    let goalies_formatted = goalies_to_csv(&all_goalies);
+
+    let _ = write_string_to_file("./output/seasons.csv", seasons_formatted);
+    let _ = write_string_to_file("./output/teams.csv", teams_formatted);
+    let _ = write_string_to_file("./output/team_seasons.csv", team_seasons_formatted);
+    let _ = write_string_to_file("./output/skaters.csv", skaters_formatted);
+    let _ = write_string_to_file("./output/goalies.csv", goalies_formatted);
+
+    println!("Finished in {}ms", timer.elapsed().as_millis());
 }
 
-fn write_string_to_file(path: &str, data: &str) -> Result<(), Box<dyn Error>> {
+fn write_string_to_file(path: &str, data: String) -> Result<(), Box<dyn Error>> {
     fs::write(path, data)?;
     Ok(())
 }

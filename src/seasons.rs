@@ -1,10 +1,10 @@
 use crate::season_names::{SEASON_IDS, SEASON_NUMS};
 use crate::teams::Team;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Season {
-    season_id: String,
-    season_name: String,
+    pub season_id: String,
+    pub season_name: String,
     pub season_num: i32,
     pub teams: Vec<Team>,
 }

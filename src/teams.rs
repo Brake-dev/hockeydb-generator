@@ -2,13 +2,13 @@ use crate::goalies::Goalie;
 use crate::skaters::Skater;
 use crate::team_names::{CONFERENCE, DIVISION, TEAM_IDS, TEAM_NAMES_SHORT};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Team {
-    team_id: String,
-    team_name: String,
+    pub team_id: String,
+    pub team_name: String,
     team_name_short: String,
-    conference: String,
-    division: String,
+    pub conference: String,
+    pub division: String,
     pub lines: Vec<Vec<Skater>>,
     pub goalies: Vec<Goalie>,
 }

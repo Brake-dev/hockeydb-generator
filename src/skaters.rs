@@ -8,20 +8,20 @@ use crate::skater_names::get_name_by_nationality;
 use crate::team_names::TEAM_NAMES_SHORT;
 use crate::utils::format_num_to_ordinal;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Skater {
-    skater_id: Uuid,
-    age: i32,
-    name: String,
-    number: i32,
-    height: String,
-    weight: i32,
-    born: String,
-    birthplace: String,
-    shoots: String,
-    draft: String,
+    pub skater_id: Uuid,
+    pub age: i32,
+    pub name: String,
+    pub number: i32,
+    pub height: String,
+    pub weight: i32,
+    pub born: String,
+    pub birthplace: String,
+    pub shoots: String,
+    pub draft: String,
     line: i32,
-    position: String,
+    pub position: String,
 }
 
 #[derive(PartialEq)]

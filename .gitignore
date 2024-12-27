@@ -1,4 +1,5 @@
 /target
+/output
 notes.md
 results.txt
 get_names.js

@@ -7,18 +7,18 @@ use crate::skaters::{get_age, get_birthdate, get_draft, get_nationality, HEIGHT,
 
 pub const CATCHES: [&str; 2] = ["L", "R"];
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Goalie {
-    goalie_id: Uuid,
-    age: i32,
-    name: String,
-    number: i32,
-    height: String,
-    weight: i32,
-    born: String,
-    birthplace: String,
-    catches: String,
-    draft: String,
+    pub goalie_id: Uuid,
+    pub age: i32,
+    pub name: String,
+    pub number: i32,
+    pub height: String,
+    pub weight: i32,
+    pub born: String,
+    pub birthplace: String,
+    pub catches: String,
+    pub draft: String,
 }
 
 impl Goalie {
