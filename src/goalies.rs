@@ -9,7 +9,7 @@ pub const CATCHES: [&str; 2] = ["L", "R"];
 
 #[derive(Debug, Clone)]
 pub struct Goalie {
-    pub goalie_id: Uuid,
+    pub goalie_id: String,
     pub age: i32,
     pub name: String,
     pub number: i32,
@@ -23,7 +23,7 @@ pub struct Goalie {
 
 impl Goalie {
     pub fn new(season: &i32) -> Goalie {
-        let goalie_id = Uuid::new_v4();
+        let goalie_id = String::from(Uuid::new_v4());
         let age = get_age(season);
         let born = get_birthdate(age, season);
         let draft = get_draft(season - age);

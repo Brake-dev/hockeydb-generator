@@ -10,7 +10,7 @@ use crate::utils::format_num_to_ordinal;
 
 #[derive(Debug, Clone)]
 pub struct Skater {
-    pub skater_id: Uuid,
+    pub skater_id: String,
     pub age: i32,
     pub name: String,
     pub number: i32,
@@ -115,7 +115,7 @@ pub fn get_nationality() -> Nationality {
 
 impl Skater {
     pub fn new(season: &i32, line: i32, pos_index: usize) -> Skater {
-        let skater_id = Uuid::new_v4();
+        let skater_id = String::from(Uuid::new_v4());
         let age = get_age(season);
         let born = get_birthdate(age, season);
         let draft = get_draft(season - age);

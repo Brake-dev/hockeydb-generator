@@ -98,3 +98,47 @@ pub fn goalies_to_csv(goalies: &Vec<Goalie>) -> String {
 
     rows
 }
+
+pub fn team_skaters_to_csv(ids: &Vec<(String, String, String)>) -> String {
+    let mut rows = String::from("team_id;skater_id;season_id\n");
+
+    for id in ids {
+        rows.push_str(
+            &(vec![id.0.to_string(), id.1.to_string(), id.2.to_string()].join(";") + "\n"),
+        );
+    }
+
+    rows
+}
+
+pub fn skaters_season_to_csv(ids: &Vec<(String, String, String)>) -> String {
+    let mut rows = String::from("skater_id;season_id\n");
+
+    for id in ids {
+        rows.push_str(&(vec![id.1.to_string(), id.2.to_string()].join(";") + "\n"));
+    }
+
+    rows
+}
+
+pub fn team_goalies_to_csv(ids: &Vec<(String, String, String)>) -> String {
+    let mut rows = String::from("team_id;goalie_id;season_id\n");
+
+    for id in ids {
+        rows.push_str(
+            &(vec![id.0.to_string(), id.1.to_string(), id.2.to_string()].join(";") + "\n"),
+        );
+    }
+
+    rows
+}
+
+pub fn goalies_season_to_csv(ids: &Vec<(String, String, String)>) -> String {
+    let mut rows = String::from("goalie_id;season_id\n");
+
+    for id in ids {
+        rows.push_str(&(vec![id.1.to_string(), id.2.to_string()].join(";") + "\n"));
+    }
+
+    rows
+}
