@@ -20,7 +20,7 @@ pub struct Skater {
     pub birthplace: String,
     pub shoots: String,
     pub draft: String,
-    line: i32,
+    pub line: i32,
     pub position: String,
 }
 
