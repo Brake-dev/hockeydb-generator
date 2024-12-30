@@ -10,6 +10,8 @@ pub const GOALS_AGAINST: RangeInclusive<i32> = 198..=326;
 pub const STREAK: [&str; 10] = ["L5", "L4", "L3", "L2", "L1", "W1", "W2", "W3", "W4", "W5"];
 
 pub struct TeamStats {
+    pub team_id: String,
+    pub season_id: String,
     pub games: i32,
     pub wins: i32,
     pub losses: i32,
@@ -26,7 +28,7 @@ pub struct TeamStats {
 }
 
 impl TeamStats {
-    pub fn new() -> TeamStats {
+    pub fn new(team_id: &String, season_id: &String) -> TeamStats {
         let wins = thread_rng().gen_range(WINS);
         let losses = 82 - wins;
         let overtime_wins = thread_rng().gen_range(OVERTIME_WINS);
@@ -41,6 +43,8 @@ impl TeamStats {
         let last_10 = get_last_10();
 
         TeamStats {
+            team_id: team_id.to_string(),
+            season_id: season_id.to_string(),
             games: GAMES,
             wins,
             losses,
@@ -59,9 +63,9 @@ impl TeamStats {
 }
 
 pub fn get_home_away_record(wins: i32, losses: i32, overtime_losses: i32) -> (String, String) {
-    let home_wins = (wins as f64 * 0.7) as i32;
-    let home_losses = (losses as f64 * 0.3) as i32;
-    let home_otl = (overtime_losses as f64 * 0.2) as i32;
+    let home_wins = (wins as f32 * 0.7) as i32;
+    let home_losses = (losses as f32 * 0.3) as i32;
+    let home_otl = (overtime_losses as f32 * 0.2) as i32;
 
     let away_wins = wins - home_wins;
     let away_losses = losses - home_losses;
@@ -88,10 +92,10 @@ pub fn get_shootout_record(overtime_wins: i32, overtime_losses: i32) -> String {
     let shootout_wins = if overtime_wins == 0 {
         0
     } else {
-        (overtime_wins as f64 * 0.3) as i32
+        (overtime_wins as f32 * 0.3) as i32
     };
 
-    let shootout_losses = (overtime_losses as f64 * 0.1) as i32;
+    let shootout_losses = (overtime_losses as f32 * 0.1) as i32;
 
     vec![shootout_wins.to_string(), shootout_losses.to_string()].join("-")
 }

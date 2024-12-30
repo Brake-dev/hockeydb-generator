@@ -1,10 +1,11 @@
 use rand::{thread_rng, Rng};
 use std::ops::RangeInclusive;
+use uuid::Uuid;
 
 pub const GOALS: RangeInclusive<i32> = 0..=10;
 pub const SHOTS_ON_GOAL: RangeInclusive<i32> = 20..=50;
-pub const FACE_OFF_PERCENT: RangeInclusive<f64> = 40.0..=60.0;
-pub const POWERPLAY_PERCENT: RangeInclusive<f64> = 0.0..=35.0;
+pub const FACE_OFF_PERCENT: RangeInclusive<f32> = 40.0..=60.0;
+pub const POWERPLAY_PERCENT: RangeInclusive<f32> = 0.0..=35.0;
 pub const PENALTY_MINUTES: RangeInclusive<i32> = 0..=12;
 pub const HITS: RangeInclusive<i32> = 20..=40;
 pub const BLOCKED_SHOTS: RangeInclusive<i32> = 5..=15;
@@ -12,14 +13,16 @@ pub const GIVEAWAYS: RangeInclusive<i32> = 5..=20;
 pub const TAKEAWAYS: RangeInclusive<i32> = 1..=5;
 
 pub struct Game {
+    pub game_id: String,
+    pub season_id: String,
     pub overtime: bool,
     pub shootout: bool,
     pub home_team_id: String,
     pub away_team_id: String,
     pub home_goals: i32,
     pub home_shots_on_goal: i32,
-    pub home_face_off_percentage: f64,
-    pub home_powerplay_percentage: f64,
+    pub home_face_off_percentage: f32,
+    pub home_powerplay_percentage: f32,
     pub home_penalty_minutes: i32,
     pub home_hits: i32,
     pub home_blocked_shots: i32,
@@ -27,8 +30,8 @@ pub struct Game {
     pub home_takeaways: i32,
     pub away_goals: i32,
     pub away_shots_on_goal: i32,
-    pub away_face_off_percentage: f64,
-    pub away_powerplay_percentage: f64,
+    pub away_face_off_percentage: f32,
+    pub away_powerplay_percentage: f32,
     pub away_penalty_minutes: i32,
     pub away_hits: i32,
     pub away_blocked_shots: i32,
@@ -37,7 +40,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(home_team_id: String, away_team_id: String) -> Game {
+    pub fn new(season_id: &String, home_team_id: &String, away_team_id: &String) -> Game {
         let overtime_percent = thread_rng().gen_range(0..=100);
         let overtime = overtime_percent <= 5;
 
@@ -65,10 +68,12 @@ impl Game {
         let away_takeaways = thread_rng().gen_range(TAKEAWAYS);
 
         Game {
+            game_id: String::from(Uuid::new_v4()),
+            season_id: season_id.to_string(),
             overtime,
             shootout,
-            home_team_id,
-            away_team_id,
+            home_team_id: home_team_id.to_string(),
+            away_team_id: away_team_id.to_string(),
             home_goals,
             home_shots_on_goal,
             home_face_off_percentage,

@@ -19,10 +19,11 @@ pub struct Goalie {
     pub birthplace: String,
     pub catches: String,
     pub draft: String,
+    pub index: usize, // Zero based, first or second goalie
 }
 
 impl Goalie {
-    pub fn new(season: &i32) -> Goalie {
+    pub fn new(season: &i32, index: usize) -> Goalie {
         let goalie_id = String::from(Uuid::new_v4());
         let age = get_age(season);
         let born = get_birthdate(age, season);
@@ -50,6 +51,7 @@ impl Goalie {
             birthplace,
             catches,
             draft,
+            index,
         }
     }
 }

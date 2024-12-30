@@ -1,16 +1,19 @@
 use rand::{self, thread_rng, Rng};
 use std::ops::RangeInclusive;
 
-use crate::utils::{adjust_float_range_by_goalie_index, adjust_range_by_line_and_pos};
+use crate::utils::{
+    adjust_float_range_by_goalie_index, adjust_range_by_line_and_pos,
+    adjust_range_by_line_and_pos_low_is_better,
+};
 
 pub const GAMES_PLAYED: RangeInclusive<i32> = 20..=64;
 pub const GAMES_STARTED: RangeInclusive<i32> = 20..=64;
 pub const WINS: RangeInclusive<i32> = 0..=38;
-pub const LOSSES: RangeInclusive<i32> = 31..=0;
-pub const OVERTIME_LOSSES: RangeInclusive<i32> = 10..=0;
+pub const LOSSES: RangeInclusive<i32> = 0..=31;
+pub const OVERTIME_LOSSES: RangeInclusive<i32> = 0..=10;
 pub const SHOTS_AGAINST: RangeInclusive<i32> = 500..=1845;
-pub const GOALS_AGAINST_AVERAGE: RangeInclusive<f64> = 5.00..=2.00;
-pub const SAVE_PERCENTAGE: RangeInclusive<f64> = 0.870..=0.920;
+pub const GOALS_AGAINST_AVERAGE: RangeInclusive<f32> = 2.00..=5.00;
+pub const SAVE_PERCENTAGE: RangeInclusive<f32> = 0.870..=0.920;
 pub const SHUTOUT: RangeInclusive<i32> = 0..=6;
 pub const GOALS: RangeInclusive<i32> = 0..=1;
 pub const ASSISTS: RangeInclusive<i32> = 0..=5;
@@ -18,14 +21,16 @@ pub const PENALTY_MINUTES: RangeInclusive<i32> = 0..=14;
 pub const TIME_ON_ICE: RangeInclusive<i32> = 980..=3630;
 
 pub struct GoalieStats {
+    pub goalie_id: String,
+    pub season_id: String,
     pub games_played: i32,
     pub games_started: i32,
     pub wins: i32,
     pub losses: i32,
     pub overtime_losses: i32,
     pub shots_against: i32,
-    pub goals_against_average: f64,
-    pub save_percentage: f64,
+    pub goals_against_average: f32,
+    pub save_percentage: f32,
     pub shutout: i32,
     pub goals: i32,
     pub assists: i32,
@@ -34,8 +39,8 @@ pub struct GoalieStats {
 }
 
 impl GoalieStats {
-    pub fn new(goalie_index: i32) -> GoalieStats {
-        let adjust_index_to_line = if goalie_index == 0 { 1 } else { 3 };
+    pub fn new(goalie_id: &String, season_id: &String, goalie_index: &usize) -> GoalieStats {
+        let adjust_index_to_line = if *goalie_index == 0 { 1 } else { 3 };
         let position = String::from("G");
 
         let games_played = thread_rng().gen_range(adjust_range_by_line_and_pos(
@@ -56,13 +61,13 @@ impl GoalieStats {
             &position,
         ));
 
-        let losses = thread_rng().gen_range(adjust_range_by_line_and_pos(
+        let losses = thread_rng().gen_range(adjust_range_by_line_and_pos_low_is_better(
             &LOSSES,
             &adjust_index_to_line,
             &position,
         ));
 
-        let overtime_losses = thread_rng().gen_range(adjust_range_by_line_and_pos(
+        let overtime_losses = thread_rng().gen_range(adjust_range_by_line_and_pos_low_is_better(
             &OVERTIME_LOSSES,
             &adjust_index_to_line,
             &position,
@@ -77,11 +82,13 @@ impl GoalieStats {
         let goals_against_average = thread_rng().gen_range(adjust_float_range_by_goalie_index(
             &GOALS_AGAINST_AVERAGE,
             &goalie_index,
+            true,
         ));
 
         let save_percentage = thread_rng().gen_range(adjust_float_range_by_goalie_index(
             &SAVE_PERCENTAGE,
             &goalie_index,
+            false,
         ));
 
         let shutout = thread_rng().gen_range(adjust_range_by_line_and_pos(
@@ -115,6 +122,8 @@ impl GoalieStats {
         ));
 
         GoalieStats {
+            goalie_id: goalie_id.to_string(),
+            season_id: season_id.to_string(),
             games_played,
             games_started,
             wins,

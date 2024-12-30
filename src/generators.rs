@@ -16,8 +16,8 @@ pub fn get_entry_draft_data(mut season: Season) -> Season {
             }
         }
 
-        for _ in 1..=2 {
-            let goalie = Goalie::new(&season.season_num);
+        for index in 0..=1 {
+            let goalie = Goalie::new(&season.season_num, index);
             team.goalies.push(goalie);
         }
 
@@ -55,7 +55,7 @@ pub fn retire_and_draft_players(
                 let mut new_goalies = new_team.goalies;
                 for (goalie_i, goalie) in prev_team.goalies.iter().enumerate() {
                     if goalie.age + 1 > 35 {
-                        let new_goalie = Goalie::new(&season.season_num);
+                        let new_goalie = Goalie::new(&season.season_num, goalie_i);
                         new_goalies[goalie_i] = new_goalie;
                     } else {
                         new_goalies[goalie_i].age += 1;
