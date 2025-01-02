@@ -1,3 +1,4 @@
+use crate::games::Game;
 use crate::goalies::Goalie;
 use crate::league::League;
 use crate::seasons::Season;
@@ -70,4 +71,39 @@ pub fn retire_and_draft_players(
     }
 
     season
+}
+
+pub fn get_game_data(
+    num: &i32,
+    index: usize,
+    season: &Season,
+    team: &Team,
+) -> Option<(Game, (String, String, String), (String, String, String))> {
+    let home_game = num % 2 == 0;
+    let other_team = &season.teams[index];
+
+    if other_team.team_id != team.team_id {
+        let (home_team_id, away_team_id) = if home_game {
+            (&team.team_id, &other_team.team_id)
+        } else {
+            (&other_team.team_id, &team.team_id)
+        };
+
+        let game = Game::new(&season.season_id, home_team_id, away_team_id);
+
+        let home_team_game = (
+            game.game_id.to_string(),
+            game.home_team_id.to_string(),
+            game.season_id.to_string(),
+        );
+        let away_team_game = (
+            game.game_id.to_string(),
+            game.away_team_id.to_string(),
+            game.season_id.to_string(),
+        );
+
+        return Some((game, home_team_game, away_team_game));
+    }
+
+    None
 }

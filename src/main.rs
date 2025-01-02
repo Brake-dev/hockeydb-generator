@@ -24,7 +24,7 @@ use format::{
     team_goalies_to_csv, team_season_to_csv, team_skaters_to_csv, team_stats_to_csv, teams_to_csv,
 };
 use games::Game;
-use generators::{get_entry_draft_data, retire_and_draft_players};
+use generators::{get_entry_draft_data, get_game_data, retire_and_draft_players};
 use goalie_stats::GoalieStats;
 use goalies::Goalie;
 use season_names::SEASON_NAMES;
@@ -83,29 +83,16 @@ fn main() {
             if team_i < teams_middle {
                 let mut inter_i = teams_middle;
                 for inter_conference in 1..32 {
-                    let home_game = inter_conference % 2 == 0;
-                    let other_team = &season.teams[inter_i];
+                    let game_res = get_game_data(&inter_conference, inter_i, &season, team);
 
-                    let (home_team_id, away_team_id) = if home_game {
-                        (&team.team_id, &other_team.team_id)
-                    } else {
-                        (&other_team.team_id, &team.team_id)
-                    };
-
-                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
-
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.home_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.away_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-
-                    all_games.push(game);
+                    match game_res {
+                        Some(res) => {
+                            all_games.push(res.0);
+                            team_games.push(res.1);
+                            team_games.push(res.2);
+                        }
+                        None => (),
+                    }
 
                     if inter_i + 1 > season.teams.len() - 1 {
                         inter_i = teams_middle;
@@ -123,30 +110,15 @@ fn main() {
 
             // Most conference and division games
             for conference in 1..47 {
-                let home_game = conference % 2 == 0;
-                let other_team = &season.teams[conf_i];
+                let game_res = get_game_data(&conference, conf_i, &season, team);
 
-                if other_team.team_id != team.team_id {
-                    let (home_team_id, away_team_id) = if home_game {
-                        (&team.team_id, &other_team.team_id)
-                    } else {
-                        (&other_team.team_id, &team.team_id)
-                    };
-
-                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
-
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.home_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.away_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-
-                    all_games.push(game);
+                match game_res {
+                    Some(res) => {
+                        all_games.push(res.0);
+                        team_games.push(res.1);
+                        team_games.push(res.2);
+                    }
+                    None => (),
                 }
 
                 if team_i < teams_middle {
@@ -168,35 +140,20 @@ fn main() {
 
             // Extra division games
             'division_loop: for division in 1..5 {
+                // Don't go over the division limit
                 if div_i + 1 > division_num * 7 || div_i >= season.teams.len() {
                     break 'division_loop;
                 }
 
-                let home_game = division % 2 == 0;
-                let other_team = &season.teams[div_i];
+                let game_res = get_game_data(&division, div_i, &season, team);
 
-                // Don't go over the division limit
-                if other_team.team_id != team.team_id {
-                    let (home_team_id, away_team_id) = if home_game {
-                        (&team.team_id, &other_team.team_id)
-                    } else {
-                        (&other_team.team_id, &team.team_id)
-                    };
-
-                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
-
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.home_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-                    team_games.push((
-                        game.game_id.to_string(),
-                        game.away_team_id.to_string(),
-                        game.season_id.to_string(),
-                    ));
-
-                    all_games.push(game);
+                match game_res {
+                    Some(res) => {
+                        all_games.push(res.0);
+                        team_games.push(res.1);
+                        team_games.push(res.2);
+                    }
+                    None => (),
                 }
 
                 div_i += 1;
