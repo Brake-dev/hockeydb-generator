@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::fs;
 use std::ops::RangeInclusive;
 
 pub fn format_num_to_ordinal(num: i32) -> String {
@@ -13,6 +15,11 @@ pub fn format_num_to_ordinal(num: i32) -> String {
     }
 
     return num.to_string() + "th";
+}
+
+pub fn write_string_to_file(path: &str, data: String) -> Result<(), Box<dyn Error>> {
+    fs::write(path, data)?;
+    Ok(())
 }
 
 fn modify_range(range: &RangeInclusive<i32>, line: &i32, position: &String) -> RangeInclusive<i32> {

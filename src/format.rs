@@ -52,23 +52,23 @@ pub fn team_season_to_csv(seasons: &Vec<Season>, teams: &Vec<Team>) -> String {
     rows
 }
 
-pub fn skaters_to_csv(skaters: &Vec<Skater>) -> String {
+pub fn skaters_to_csv(skaters: Vec<Skater>) -> String {
     let mut rows =
         String::from("skater_id;name;number;height;weight;born;birthplace;shoots;draft;position\n");
 
     for skater in skaters {
         rows.push_str(
             &(vec![
-                skater.skater_id.to_string(),
-                skater.name.to_string(),
+                skater.skater_id,
+                skater.name,
                 skater.number.to_string(),
-                skater.height.to_string(),
+                skater.height,
                 skater.weight.to_string(),
-                skater.born.to_string(),
-                skater.birthplace.to_string(),
-                skater.shoots.to_string(),
-                skater.draft.to_string(),
-                skater.position.to_string(),
+                skater.born,
+                skater.birthplace,
+                skater.shoots,
+                skater.draft,
+                skater.position,
             ]
             .join(";")
                 + "\n"),
@@ -78,22 +78,22 @@ pub fn skaters_to_csv(skaters: &Vec<Skater>) -> String {
     rows
 }
 
-pub fn goalies_to_csv(goalies: &Vec<Goalie>) -> String {
+pub fn goalies_to_csv(goalies: Vec<Goalie>) -> String {
     let mut rows =
         String::from("goalie_id;name;number;height;weight;born;birthplace;catches;draft\n");
 
     for goalie in goalies {
         rows.push_str(
             &(vec![
-                goalie.goalie_id.to_string(),
-                goalie.name.to_string(),
+                goalie.goalie_id,
+                goalie.name,
                 goalie.number.to_string(),
-                goalie.height.to_string(),
+                goalie.height,
                 goalie.weight.to_string(),
-                goalie.born.to_string(),
-                goalie.birthplace.to_string(),
-                goalie.catches.to_string(),
-                goalie.draft.to_string(),
+                goalie.born,
+                goalie.birthplace,
+                goalie.catches,
+                goalie.draft,
             ]
             .join(";")
                 + "\n"),
@@ -280,7 +280,7 @@ pub fn games_to_csv(games: Vec<Game>) -> String {
     rows
 }
 
-pub fn team_games_to_csv(ids: &Vec<(String, String, String)>) -> String {
+pub fn team_games_to_csv(ids: Vec<(String, String, String)>) -> String {
     let mut rows = String::from("game_id;team_id;season_id\n");
 
     for id in ids {

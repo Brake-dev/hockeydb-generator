@@ -12,6 +12,10 @@ pub const BLOCKED_SHOTS: RangeInclusive<i32> = 5..=15;
 pub const GIVEAWAYS: RangeInclusive<i32> = 5..=20;
 pub const TAKEAWAYS: RangeInclusive<i32> = 1..=5;
 
+// Within division 	                    4 games × 5 opponents + 3 games × 2 opponents = 26
+// Within conference, non-divisional 	3 games × 8 opponents = 24
+// Inter-conference 	                2 games × 16 opponents = 32
+
 pub struct Game {
     pub game_id: String,
     pub season_id: String,

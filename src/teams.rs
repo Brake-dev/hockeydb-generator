@@ -1,12 +1,11 @@
 use crate::goalies::Goalie;
 use crate::skaters::Skater;
-use crate::team_names::{CONFERENCE, DIVISION, TEAM_IDS, TEAM_NAMES_SHORT};
+use crate::team_names::{CONFERENCE, DIVISION, TEAM_IDS};
 
 #[derive(Debug, Clone)]
 pub struct Team {
     pub team_id: String,
     pub team_name: String,
-    team_name_short: String,
     pub conference: String,
     pub division: String,
     pub lines: Vec<Vec<Skater>>,
@@ -34,7 +33,6 @@ impl Team {
         Team {
             team_id: TEAM_IDS[index].to_string(),
             team_name,
-            team_name_short: TEAM_NAMES_SHORT[index].to_string(),
             conference,
             division,
             lines: vec![vec![], vec![], vec![], vec![]],

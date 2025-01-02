@@ -1,6 +1,4 @@
 use std::env;
-use std::error::Error;
-use std::fs;
 use std::time;
 
 mod birthplaces;
@@ -21,10 +19,11 @@ mod teams;
 mod utils;
 
 use format::{
-    goalie_stats_to_csv, goalies_season_to_csv, goalies_to_csv, seasons_to_csv,
-    skater_stats_to_csv, skaters_season_to_csv, skaters_to_csv, team_goalies_to_csv,
-    team_season_to_csv, team_skaters_to_csv, team_stats_to_csv, teams_to_csv,
+    games_to_csv, goalie_stats_to_csv, goalies_season_to_csv, goalies_to_csv, seasons_to_csv,
+    skater_stats_to_csv, skaters_season_to_csv, skaters_to_csv, team_games_to_csv,
+    team_goalies_to_csv, team_season_to_csv, team_skaters_to_csv, team_stats_to_csv, teams_to_csv,
 };
+use games::Game;
 use generators::{get_entry_draft_data, retire_and_draft_players};
 use goalie_stats::GoalieStats;
 use goalies::Goalie;
@@ -33,6 +32,7 @@ use seasons::Season;
 use skater_stats::SkaterStats;
 use skaters::Skater;
 use team_stats::TeamStats;
+use utils::write_string_to_file;
 
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
@@ -58,6 +58,9 @@ fn main() {
 
     let mut team_stats: Vec<TeamStats> = vec![];
 
+    let mut all_games: Vec<Game> = vec![];
+    let mut team_games: Vec<(String, String, String)> = vec![];
+
     let mut all_skaters: Vec<Skater> = vec![];
     let mut all_goalies: Vec<Goalie> = vec![];
 
@@ -67,12 +70,139 @@ fn main() {
     let mut team_skaters: Vec<(String, String, String)> = vec![];
     let mut team_goalies: Vec<(String, String, String)> = vec![];
 
+    let mut division_num = 1;
+
     for season in league.seasons {
-        for team in season.teams {
+        let teams_middle = (season.teams.len() - 1) / 2;
+
+        for (team_i, team) in season.teams.iter().enumerate() {
             let stats = TeamStats::new(&team.team_id, &season.season_id);
             team_stats.push(stats);
 
-            for line in team.lines {
+            // All inter-conference games
+            if team_i < teams_middle {
+                let mut inter_i = teams_middle;
+                for inter_conference in 1..32 {
+                    let home_game = inter_conference % 2 == 0;
+                    let other_team = &season.teams[inter_i];
+
+                    let (home_team_id, away_team_id) = if home_game {
+                        (&team.team_id, &other_team.team_id)
+                    } else {
+                        (&other_team.team_id, &team.team_id)
+                    };
+
+                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
+
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.home_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.away_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+
+                    all_games.push(game);
+
+                    if inter_i + 1 > season.teams.len() - 1 {
+                        inter_i = teams_middle;
+                    } else {
+                        inter_i += 1;
+                    }
+                }
+            }
+
+            let mut conf_i = if team_i < teams_middle {
+                team_i
+            } else {
+                teams_middle
+            };
+
+            // Most conference and division games
+            for conference in 1..47 {
+                let home_game = conference % 2 == 0;
+                let other_team = &season.teams[conf_i];
+
+                if other_team.team_id != team.team_id {
+                    let (home_team_id, away_team_id) = if home_game {
+                        (&team.team_id, &other_team.team_id)
+                    } else {
+                        (&other_team.team_id, &team.team_id)
+                    };
+
+                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
+
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.home_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.away_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+
+                    all_games.push(game);
+                }
+
+                if team_i < teams_middle {
+                    if conf_i + 1 > teams_middle {
+                        conf_i = team_i
+                    } else {
+                        conf_i += 1
+                    }
+                } else {
+                    if conf_i + 1 > season.teams.len() - 1 {
+                        conf_i = team_i
+                    } else {
+                        conf_i += 1
+                    }
+                }
+            }
+
+            let mut div_i = team_i + 1;
+
+            // Extra division games
+            'division_loop: for division in 1..5 {
+                if div_i + 1 > division_num * 7 || div_i >= season.teams.len() {
+                    break 'division_loop;
+                }
+
+                let home_game = division % 2 == 0;
+                let other_team = &season.teams[div_i];
+
+                // Don't go over the division limit
+                if other_team.team_id != team.team_id {
+                    let (home_team_id, away_team_id) = if home_game {
+                        (&team.team_id, &other_team.team_id)
+                    } else {
+                        (&other_team.team_id, &team.team_id)
+                    };
+
+                    let game = Game::new(&season.season_id, home_team_id, away_team_id);
+
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.home_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+                    team_games.push((
+                        game.game_id.to_string(),
+                        game.away_team_id.to_string(),
+                        game.season_id.to_string(),
+                    ));
+
+                    all_games.push(game);
+                }
+
+                div_i += 1;
+            }
+
+            for line in &team.lines {
                 for skater in line {
                     team_skaters.push((
                         team.team_id.to_string(),
@@ -89,12 +219,12 @@ fn main() {
                     skater_stats.push(stats);
 
                     if !all_skaters.iter().any(|s| s.skater_id == skater.skater_id) {
-                        all_skaters.push(skater);
+                        all_skaters.push(skater.clone());
                     }
                 }
             }
 
-            for goalie in team.goalies {
+            for goalie in &team.goalies {
                 team_goalies.push((
                     team.team_id.to_string(),
                     goalie.goalie_id.to_string(),
@@ -105,16 +235,22 @@ fn main() {
                 goalie_stats.push(stats);
 
                 if !all_goalies.iter().any(|g| g.goalie_id == goalie.goalie_id) {
-                    all_goalies.push(goalie);
+                    all_goalies.push(goalie.clone());
                 }
+            }
+
+            if team_i == division_num * 7 {
+                division_num += 1;
             }
         }
     }
 
     let team_stats_formatted = team_stats_to_csv(team_stats);
+    let games_formatted = games_to_csv(all_games);
+    let team_games_formatted = team_games_to_csv(team_games);
 
-    let skaters_formatted = skaters_to_csv(&all_skaters);
-    let goalies_formatted = goalies_to_csv(&all_goalies);
+    let skaters_formatted = skaters_to_csv(all_skaters);
+    let goalies_formatted = goalies_to_csv(all_goalies);
 
     let team_skaters_formatted = team_skaters_to_csv(&team_skaters);
     let skater_season_formatted = skaters_season_to_csv(&team_skaters);
@@ -132,6 +268,9 @@ fn main() {
     let _ = write_string_to_file("./output/team_seasons.csv", team_seasons_formatted);
     let _ = write_string_to_file("./output/team_stats.csv", team_stats_formatted);
 
+    let _ = write_string_to_file("./output/games.csv", games_formatted);
+    let _ = write_string_to_file("./output/team_games.csv", team_games_formatted);
+
     let _ = write_string_to_file("./output/skaters.csv", skaters_formatted);
     let _ = write_string_to_file("./output/team_skaters.csv", team_skaters_formatted);
     let _ = write_string_to_file("./output/skater_stats.csv", skater_stats_formatted);
@@ -144,9 +283,4 @@ fn main() {
     let _ = write_string_to_file("./output/goalies_seasons.csv", goalie_season_formatted);
 
     println!("Finished in {}ms", timer.elapsed().as_millis());
-}
-
-fn write_string_to_file(path: &str, data: String) -> Result<(), Box<dyn Error>> {
-    fs::write(path, data)?;
-    Ok(())
 }
