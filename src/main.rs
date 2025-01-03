@@ -70,10 +70,11 @@ fn main() {
     let mut team_skaters: Vec<(String, String, String)> = vec![];
     let mut team_goalies: Vec<(String, String, String)> = vec![];
 
-    let mut division_num = 1;
+    let mut conference_range_end = 48;
+    let division_ranges = [5, 4, 1, 0, 0, 1, 4, 5];
 
     for season in league.seasons {
-        let teams_middle = (season.teams.len() - 1) / 2;
+        let teams_middle = season.teams.len() / 2;
 
         for (team_i, team) in season.teams.iter().enumerate() {
             let stats = TeamStats::new(&team.team_id, &season.season_id);
@@ -82,7 +83,7 @@ fn main() {
             // All inter-conference games
             if team_i < teams_middle {
                 let mut inter_i = teams_middle;
-                for inter_conference in 1..32 {
+                for inter_conference in 1..=32 {
                     let game_res = get_game_data(&inter_conference, inter_i, &season, team);
 
                     match game_res {
@@ -102,14 +103,10 @@ fn main() {
                 }
             }
 
-            let mut conf_i = if team_i < teams_middle {
-                team_i
-            } else {
-                teams_middle
-            };
+            let mut conf_i = team_i;
 
             // Most conference and division games
-            for conference in 1..47 {
+            for conference in 1..=conference_range_end {
                 let game_res = get_game_data(&conference, conf_i, &season, team);
 
                 match game_res {
@@ -122,41 +119,54 @@ fn main() {
                 }
 
                 if team_i < teams_middle {
-                    if conf_i + 1 > teams_middle {
-                        conf_i = team_i
+                    if conf_i + 1 >= teams_middle {
+                        conf_i = team_i;
                     } else {
-                        conf_i += 1
+                        conf_i += 1;
                     }
                 } else {
-                    if conf_i + 1 > season.teams.len() - 1 {
-                        conf_i = team_i
+                    if conf_i + 1 >= season.teams.len() {
+                        conf_i = team_i;
                     } else {
-                        conf_i += 1
+                        conf_i += 1;
                     }
                 }
             }
 
-            let mut div_i = team_i + 1;
+            if conference_range_end - 3 == 0 {
+                conference_range_end = 48;
+            } else {
+                conference_range_end -= 3;
+            }
 
             // Extra division games
-            'division_loop: for division in 1..5 {
-                // Don't go over the division limit
-                if div_i + 1 > division_num * 7 || div_i >= season.teams.len() {
-                    break 'division_loop;
-                }
+            let div_team_start_i = team_i % 8;
+            if div_team_start_i != 3 && div_team_start_i != 4 {
+                let division_range = 1..=division_ranges[div_team_start_i];
+                let mut div_i = if div_team_start_i < 4 {
+                    team_i + 1
+                } else {
+                    team_i - 1
+                };
 
-                let game_res = get_game_data(&division, div_i, &season, team);
+                for division in division_range {
+                    let game_res = get_game_data(&division, div_i, &season, team);
 
-                match game_res {
-                    Some(res) => {
-                        all_games.push(res.0);
-                        team_games.push(res.1);
-                        team_games.push(res.2);
+                    match game_res {
+                        Some(res) => {
+                            all_games.push(res.0);
+                            team_games.push(res.1);
+                            team_games.push(res.2);
+                        }
+                        None => (),
                     }
-                    None => (),
-                }
 
-                div_i += 1;
+                    if div_team_start_i < 4 {
+                        div_i += 1;
+                    } else {
+                        div_i -= 1;
+                    }
+                }
             }
 
             for line in &team.lines {
@@ -194,10 +204,6 @@ fn main() {
                 if !all_goalies.iter().any(|g| g.goalie_id == goalie.goalie_id) {
                     all_goalies.push(goalie.clone());
                 }
-            }
-
-            if team_i == division_num * 7 {
-                division_num += 1;
             }
         }
     }
