@@ -69,9 +69,9 @@ pub fn get_age(season: &i32) -> i32 {
 pub fn get_birthdate(age: i32, season: &i32) -> String {
     let year = season - age;
     let month = thread_rng().gen_range(1..=12);
-    let day = thread_rng().gen_range(1..=29);
+    let day = thread_rng().gen_range(1..=28);
 
-    vec![day.to_string(), month.to_string(), year.to_string()].join("/")
+    vec![month.to_string(), day.to_string(), year.to_string()].join("/")
 }
 
 // 7 rounds, 32 picks/round, 225 picks overall
