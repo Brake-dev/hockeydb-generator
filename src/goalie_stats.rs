@@ -1,5 +1,6 @@
 use rand::{self, thread_rng, Rng};
 use std::ops::RangeInclusive;
+use uuid::Uuid;
 
 use crate::utils::{
     adjust_float_range_by_goalie_index, adjust_range_by_line_and_pos,
@@ -21,6 +22,7 @@ pub const PENALTY_MINUTES: RangeInclusive<i32> = 0..=14;
 pub const TIME_ON_ICE: RangeInclusive<i32> = 980..=3630;
 
 pub struct GoalieStats {
+    pub goalie_stats_id: String,
     pub goalie_id: String,
     pub season_id: String,
     pub games_played: i32,
@@ -40,6 +42,8 @@ pub struct GoalieStats {
 
 impl GoalieStats {
     pub fn new(goalie_id: &String, season_id: &String, goalie_index: &usize) -> GoalieStats {
+        let goalie_stats_id = String::from(Uuid::new_v4());
+
         let adjust_index_to_line = if *goalie_index == 0 { 1 } else { 3 };
         let position = String::from("G");
 
@@ -122,6 +126,7 @@ impl GoalieStats {
         ));
 
         GoalieStats {
+            goalie_stats_id,
             goalie_id: goalie_id.to_string(),
             season_id: season_id.to_string(),
             games_played,

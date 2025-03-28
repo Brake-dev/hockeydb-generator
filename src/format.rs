@@ -148,11 +148,12 @@ pub fn goalies_season_to_csv(ids: &Vec<(String, String, String)>) -> String {
 }
 
 pub fn team_stats_to_csv(stats: Vec<TeamStats>) -> String {
-    let mut rows = String::from("team_id;season_id;games;wins;losses;overtime_wins;overtime_losses;points;goals_for;goals_against;home_record;away_record;shootout_record;last_10;streak\n");
+    let mut rows = String::from("team_stats_id;team_id;season_id;games;wins;losses;overtime_wins;overtime_losses;points;goals_for;goals_against;home_record;away_record;shootout_record;last_10;streak\n");
 
     for stat in stats {
         rows.push_str(
             &(vec![
+                stat.team_stats_id,
                 stat.team_id,
                 stat.season_id,
                 stat.games.to_string(),
@@ -178,11 +179,12 @@ pub fn team_stats_to_csv(stats: Vec<TeamStats>) -> String {
 }
 
 pub fn skater_stats_to_csv(stats: Vec<SkaterStats>) -> String {
-    let mut rows = String::from("skater_id;season_id;games_played;goals;assists;points;plus_minus;penalty_minutes;powerplay_goals;powerplay_points;shorthanded_goals;shorthanded_points;time_on_ice_per_gp;game_winning_goals;overtime_goals;shots_on_goal;face_off_percentage\n");
+    let mut rows = String::from("skater_stats_id;skater_id;season_id;games_played;goals;assists;points;plus_minus;penalty_minutes;powerplay_goals;powerplay_points;shorthanded_goals;shorthanded_points;time_on_ice_per_gp;game_winning_goals;overtime_goals;shots_on_goal;face_off_percentage\n");
 
     for stat in stats {
         rows.push_str(
             &(vec![
+                stat.skater_stats_id,
                 stat.skater_id,
                 stat.season_id,
                 stat.games_played.to_string(),
@@ -210,11 +212,12 @@ pub fn skater_stats_to_csv(stats: Vec<SkaterStats>) -> String {
 }
 
 pub fn goalie_stats_to_csv(stats: Vec<GoalieStats>) -> String {
-    let mut rows = String::from("goalie_id;season_id;games_played;games_started;wins;losses;overtime_losses;shots_against;goals_against_average;save_percentage;shutouts;goals;assists;penalty_minutes;time_on_ice\n");
+    let mut rows = String::from("goalie_stats_id;goalie_id;season_id;games_played;games_started;wins;losses;overtime_losses;shots_against;goals_against_average;save_percentage;shutouts;goals;assists;penalty_minutes;time_on_ice\n");
 
     for stat in stats {
         rows.push_str(
             &(vec![
+                stat.goalie_stats_id,
                 stat.goalie_id,
                 stat.season_id,
                 stat.games_played.to_string(),

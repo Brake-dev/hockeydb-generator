@@ -1,5 +1,6 @@
 use rand::{self, thread_rng, Rng};
 use std::ops::RangeInclusive;
+use uuid::Uuid;
 
 use crate::utils::{
     adjust_range_by_line_and_pos, adjust_range_by_line_and_pos_allow_negative,
@@ -16,6 +17,7 @@ pub const SHOTS_ON_GOAL: RangeInclusive<i32> = 100..=400;
 pub const FACE_OFF_PERCENTAGE: RangeInclusive<i32> = 0..=60;
 
 pub struct SkaterStats {
+    pub skater_stats_id: String,
     pub skater_id: String,
     pub season_id: String,
     pub games_played: i32,
@@ -42,6 +44,8 @@ impl SkaterStats {
         line: &i32,
         position: &String,
     ) -> SkaterStats {
+        let skater_stats_id = String::from(Uuid::new_v4());
+
         let goals = thread_rng().gen_range(adjust_range_by_line_and_pos(&GOALS, &line, &position));
         let assists =
             thread_rng().gen_range(adjust_range_by_line_and_pos(&ASSISTS, &line, &position));
@@ -119,6 +123,7 @@ impl SkaterStats {
         ));
 
         SkaterStats {
+            skater_stats_id,
             skater_id: skater_id.to_string(),
             season_id: season_id.to_string(),
             games_played: thread_rng().gen_range(GAMES_PLAYED),

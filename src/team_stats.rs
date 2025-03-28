@@ -1,5 +1,6 @@
 use rand::{self, thread_rng, Rng};
 use std::ops::RangeInclusive;
+use uuid::Uuid;
 
 pub const GAMES: i32 = 82;
 pub const WINS: RangeInclusive<i32> = 20..=54;
@@ -10,6 +11,7 @@ pub const GOALS_AGAINST: RangeInclusive<i32> = 198..=326;
 pub const STREAK: [&str; 10] = ["L5", "L4", "L3", "L2", "L1", "W1", "W2", "W3", "W4", "W5"];
 
 pub struct TeamStats {
+    pub team_stats_id: String,
     pub team_id: String,
     pub season_id: String,
     pub games: i32,
@@ -29,6 +31,8 @@ pub struct TeamStats {
 
 impl TeamStats {
     pub fn new(team_id: &String, season_id: &String) -> TeamStats {
+        let team_stats_id = String::from(Uuid::new_v4());
+
         let wins = thread_rng().gen_range(WINS);
         let losses = 82 - wins;
         let overtime_wins = thread_rng().gen_range(OVERTIME_WINS);
@@ -43,6 +47,7 @@ impl TeamStats {
         let last_10 = get_last_10();
 
         TeamStats {
+            team_stats_id,
             team_id: team_id.to_string(),
             season_id: season_id.to_string(),
             games: GAMES,

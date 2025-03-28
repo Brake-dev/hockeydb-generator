@@ -243,7 +243,7 @@ fn main() {
     let _ = write_string_to_file("./output/goalie_stats.csv", goalie_stats_formatted);
 
     let _ = write_string_to_file("./output/skaters_seasons.csv", skater_season_formatted);
-    let _ = write_string_to_file("./output/goalies_seasons.csv", goalie_season_formatted);
+    let _ = write_string_to_file("./output/goalie_seasons.csv", goalie_season_formatted);
 
     println!("Finished in {}ms", timer.elapsed().as_millis());
 }
